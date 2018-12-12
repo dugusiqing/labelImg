@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-###要按标签，截取矩形框图片，并且保存成*****
+#########图像处理用库和时间库#######################
 import cv2
-#########
+import time
+##################################
 import codecs
 import distutils.spawn
 import os.path
@@ -802,6 +803,20 @@ class MainWindow(QMainWindow, WindowMixin):
                     annotationFilePath += XML_EXT
                 self.labelFile.savePascalVocFormat(annotationFilePath, shapes, self.filePath, self.imageData,
                                                    self.lineColor.getRgb(), self.fillColor.getRgb())
+##################################截取图像，用系统时间做为名字，保存成jpg格式###################################################
+                (filePath,tmpPath) = os.path.split(annotationFilePath)
+                for tmpShape in shapes:
+                    x_min = int(tmpShape["points"][0][0])
+                    x_max = int(tmpShape["points"][2][0])
+                    y_min = int(tmpShape["points"][0][1])
+                    y_max = int(tmpShape["points"][2][1])
+                    roiImg = self.cvImage[y_min:y_max,x_min:x_max]
+                    finalPath = filePath +'/'+tmpShape["label"]+"/"
+                    now = time.strftime("%Y-%m-%d-%H_%M_%S", time.localtime(time.time()))
+                    if not os.path.exists(finalPath):
+                        os.mkdir(finalPath)
+                    cv2.imwrite(finalPath + now + ".jpg", roiImg)
+##########################################################################################
             elif self.usingYoloFormat is True:
                 if annotationFilePath[-4:].lower() != ".txt":
                     annotationFilePath += TXT_EXT
@@ -999,6 +1014,9 @@ class MainWindow(QMainWindow, WindowMixin):
                 # Load image:
                 # read data first and store for saving into label file.
                 self.imageData = read(unicodeFilePath, None)
+                ##########读入图像，并且暂存#######
+                self.cvImage = cv2.imread(unicodeFilePath)
+                ###########
                 self.labelFile = None
                 self.canvas.verified = False
 
