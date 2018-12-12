@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+###要按标签，截取矩形框图片，并且保存成*****
+import cv2
+#########
 import codecs
 import distutils.spawn
 import os.path
